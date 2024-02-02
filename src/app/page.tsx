@@ -1,113 +1,216 @@
-import Image from "next/image";
+'use client'
+
+import { useEffect, useState } from "react";
+import SearchIcon from '@mui/icons-material/Search';
+import CloudIcon from '@mui/icons-material/Cloud';
+import DehazeIcon from '@mui/icons-material/Dehaze';
+import VapingRoomsIcon from '@mui/icons-material/VapingRooms';
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import WaterDropTwoToneIcon from '@mui/icons-material/WaterDropTwoTone';
 
 export default function Home() {
+
+  const [place, setPlace] = useState<string>("khariar");
+
+  const [placeData, setPlaceData] = useState<any>(null);
+
+  const currentTime:string = new Date().toLocaleDateString([],{
+    hour:"2-digit",
+    minute:"2-digit"
+  });
+
+  const getWeatherData = async () => {
+
+    if( place.trim().length === 0) {
+      alert("please enter a valid place");
+      return;
+    }
+
+   try{
+    const api = `https://api.openweathermap.org/data/2.5/weather?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}`;
+
+    const res = await fetch(api);
+    const data = await res.json();
+
+    if( data.cod == 404){
+      setPlaceData(null);
+    }
+    else{
+      setPlaceData(data);
+    }
+   }
+   catch(e){
+    setPlaceData(null);
+   }
+  }
+
+  useEffect(() => {
+    getWeatherData();
+  },[]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="outerdiv">
+      
+      <div className="searchbar">
+
+        <input type="search" placeholder="City Name" onChange={(e) => {
+          setPlace(e.target.value);
+        }} />
+        <button onClick={getWeatherData}>
+          <SearchIcon className=" text-3xl"></SearchIcon>
+        </button>
+
+      </div>
+
+      {
+        !placeData && <div className=" flex items-center justify-center h-full">
+          <div className=" bg-inherit font-semibold text-inherit bg-red-100 text-7xl p-12 rounded-xl flex flex-col justify-center items-center gap-10">
+            <div className="flex items-center justify-center p-5 bg-white w-full rounded-md">
+              <div className="text-center">
+                <div className="inline-flex rounded-full bg-red-100 p-4">
+                  <div className="rounded-full stroke-red-600 bg-red-200 p-4">
+                    <svg className="w-16 h-16" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.0002 9.33337V14M14.0002 18.6667H14.0118M25.6668 14C25.6668 20.4434 20.4435 25.6667 14.0002 25.6667C7.55684 25.6667 2.3335 20.4434 2.3335 14C2.3335 7.55672 7.55684 2.33337 14.0002 2.33337C20.4435 2.33337 25.6668 7.55672 25.6668 14Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </div>
+                </div>
+                <h1 className="mt-5 text-[36px] font-bold text-slate-800 lg:text-[50px]">404 - City not found</h1>
+                <p className="text-slate-600 mt-5 lg:text-lg">The city you are looking for doesn't exist or <br />has been removed.</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      }
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      {
+        placeData && <div className="row">
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          <div className="section1">
+            <div className="section11">
+              {
+                placeData?.weather[0].main==="Clouds" && <CloudIcon className="weathericon"/>
+              }
+              {
+                placeData?.weather[0].main === 'Haze' &&
+                <DehazeIcon className="weathericon" />
+              }
+              {
+                placeData?.weather[0].main === 'Smoke' &&
+                <VapingRoomsIcon className="weathericon" />
+              }
+              {
+                placeData?.weather[0].main === 'Clear' &&
+                <WbSunnyIcon className="weathericon" />
+              }
+              {
+                placeData?.weather[0].main === 'Rain' &&
+                <WaterDropTwoToneIcon className="weathericon" />
+              }
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+              <p className="temp">
+                {
+                  (placeData?.main.temp-273.15).toFixed(1)
+                }
+                <span>
+                °C
+                </span>
+              </p>
+            </div>
+            <div className="section11">
+              <p className="city">
+                {
+                  placeData?.name
+                }
+              </p>
+              <p className="weathertype">
+                {
+                  placeData?.weather[0].main
+                }
+              </p>
+            </div>
+          </div>
+          <div className="timediv">
+            <p className="time">
+              {currentTime}
+            </p>
+          </div>
+        </div>
+      }
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+      {
+        placeData && <div className="section2">
+          
+          <div className="section21">
+            <p className="head1">
+              Temperature
+            </p>
+            <p className="head1">
+              {
+                (placeData?.main.temp - 273.15).toFixed(1)
+              } °C
+            </p>
+          </div>
+          <div className="section21">
+            <p className="head1">
+              Temperature Min
+            </p>
+            <p className="head1">
+              {
+                (placeData?.main.temp_min - 273.15).toFixed(1)
+              } °C
+            </p>
+          </div>
+          <div className="section21">
+            <p className="head1">
+              Temperature Max
+            </p>
+            <p className="head1">
+              {
+                (placeData?.main.temp_max - 273.15).toFixed(1)
+              } °C
+            </p>
+          </div>
+          <div className="section21">
+            <p className="head1">
+              Humidity
+            </p>
+            <p className="head1">
+              {
+                placeData?.main.humidity
+              } g/kg
+            </p>
+          </div>
+          <div className="section21">
+            <p className="head1">
+              Pressure
+            </p>
+            <p className="head1">
+              {
+                placeData?.main.pressure
+              } Pa
+            </p>
+          </div>
+          <div className="section21">
+            <p className="head1">
+              Visibility
+            </p>
+            <p className="head1">
+              {
+                placeData?.visibility
+              } metres
+            </p>
+          </div>
+          <div className="section21">
+            <p className="head1">
+              Wind Speed
+            </p>
+            <p className="head1">
+              {
+                placeData?.wind.speed
+              } m/s
+            </p>
+          </div>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        </div>
+      }
+    </div>
   );
 }
